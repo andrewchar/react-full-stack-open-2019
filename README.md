@@ -1,3 +1,5 @@
+**course work for [https://fullstackopen.com/en/](https://fullstackopen.com/en/) to learn React, Redux, Node.js, MongoDB, and GraphQL**
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
