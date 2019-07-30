@@ -1,78 +1,50 @@
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 
-const App = () => {
-  const [good, setGood] = useState(0);
-  const [neutral, setNeutral] = useState(0);
-  const [bad, setBad] = useState(0);
-  const [positive, setPositive] = useState(0);
-  const [hasVoted, setHasVoted] = useState(false)
+const App = ({anecdotes}) => {
 
-  const allVotes = good + neutral + bad;
+    const [selected, setSelected] = useState(0);
+    const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0));
+    const [mostVotes, setMostVotes] = useState(0);
 
-  useEffect(() => {
-    setPositive(Math.round((good / allVotes) * 100) / 100 + '%');
-  }, [allVotes])
+    useEffect(() => {
+        calculateVotes();
+    },[votes])
 
-  const vote = (voteOption) => {
-    switch(voteOption) {
-        case 'good':
-            setGood(good + 1);
-            break;
-        case 'neutral':
-            setNeutral(neutral + 1);
-            break;
-        case 'bad':
-            setBad(bad + 1);
-            break;
+    const getRandomAnecdote = () => setSelected(Math.round(Math.random() * Math.round(anecdotes.length - 1)));
+
+    const vote = () => {
+        const votesCopy = [...votes];
+        votesCopy[selected] += 1;
+        setVotes(votesCopy);
     }
-    setHasVoted(true);
-  }
 
-  return (
-    <div>
-        <h2>give feedback</h2>
-        <Button text='good' clickAction={()=>vote('good')} />
-        <Button text='neutral' clickAction={()=>vote('neutral')} />
-        <Button text='bad' clickAction={()=>vote('bad')} />
-        <h2>Statistics</h2>
-        {hasVoted ? (
-            <table>
-                <tbody>
-                    <tr>
-                        <Statistic text='good' stat={good} />
-                    </tr>
-                    <tr>
-                        <Statistic text='neutral' stat={neutral} />
-                    </tr>
-                    <tr>
-                        <Statistic text='bad' stat={bad} />
-                    </tr>
-                    <tr>
-                        <Statistic text='all' stat={allVotes} />
-                    </tr>
-                    <tr>
-                        <Statistic text='positive' stat={positive} />
-                    </tr>
-                </tbody>
-            </table>
-        ) : (
-            <p>no feedback given</p>
-        )}
+    const calculateVotes = () => {
+        const mostVoted = votes.indexOf(Math.max(...votes))
+        setMostVotes(mostVoted);
+    }
 
-    </div>
-  )
-}
-
-const Statistic = ({text, stat}) => {
     return (
-        <>
-            <td>{text}</td>
-            <td>{stat}</td>
-        </>
+        <div>
+            <h2>Anecdote of the day</h2>
+            <p>{anecdotes[selected]}</p>
+            <p>has {votes[selected]} votes.</p>
+            <button onClick={vote}>vote</button>
+            <button onClick={getRandomAnecdote}>next anecdote</button>
+            <h2>Anecdote with the most votes</h2>
+            <p>{anecdotes[mostVotes]}</p>
+            <p>has {votes[mostVotes]} votes</p>
+        </div>
     )
 }
 
-const Button = ({clickAction, text}) => <button onClick={clickAction}>{text}</button>;
+const anecdotes = [
+    'If it hurts, do it more often',
+    'Adding manpower to a late software project makes it later!',
+    'The first 90 percent of the code accounts for the first 90 percent of the development time...The remaining 10 percent of the code accounts for the other 90 percent of the development time.',
+    'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.',
+    'Premature optimization is the root of all evil.',
+    'Debugging is twice as hard as writing the code in the first place. Therefore, if you write the code as cleverly as possible, you are, by definition, not smart enough to debug it.'
+]
 
-ReactDOM.render(<App />, document.getElementById('root'));
+ReactDOM.render(<App anecdotes={anecdotes} />, document.getElementById('root'));
