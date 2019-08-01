@@ -32,7 +32,7 @@ const App = () => {
           .map(contact => {
             return (
               <Person
-                keyID={contact.name}
+                key={contact.name}
                 name={contact.name}
                 number={contact.number}
               />
@@ -52,7 +52,7 @@ const App = () => {
         })
       );
     }
-  }, [filterName, persons]);
+  }, [filterName, persons, isFiltering]);
 
   const addPerson = event => {
     event.preventDefault();
