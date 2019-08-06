@@ -3,30 +3,34 @@ import axios from "axios";
 const baseUrl = "http://localhost:3001/persons";
 
 const create = contact => {
-  const request = axios.post(baseUrl, contact);
-  return request.then(res => res.data);
+  return axios.post(baseUrl, contact).then(res => res.data);
 };
 
 const getAll = () => {
-  const request = axios.get(baseUrl);
-  return request.then(res => res.data);
+  return axios.get(baseUrl).then(res => res.data);
 };
 
 const remove = id => {
-  const request = axios.delete(`${baseUrl}/${id}`);
-  return request.then(res => res);
+  // const request = axios.delete(`${baseUrl}/${id}`);
+  // return request.then(res => res);
+  return axios
+    .delete(`${baseUrl}/${id}`)
+    .then(res => res.data)
+    .catch(error => {
+      console.log('failed to remove contact');
+      throw error;
+    });
 };
 
-const update = (person) => {
-  const { name,newNumber, id } = person
+const update = person => {
+  const { name, newNumber, id } = person;
   const number = {
     name,
     id,
     number: newNumber
-  }
-  const request = axios.put(`${baseUrl}/${id}/`, number);
-  return request.then(res => res.data);
-}
+  };
+  return axios.put(`${baseUrl}/${id}/`, number).then(res => res.data);
+};
 
 export default {
   create,

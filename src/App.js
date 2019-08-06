@@ -6,6 +6,9 @@ import contactService from "./services/contacts";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Person from "./components/Person";
+import Notification from "./components/Notification";
+
+import "./app.css";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -14,6 +17,8 @@ const App = () => {
   const [filterName, setFilterName] = useState("");
   const [isFiltering, setIsFiltering] = useState(false);
   const [filteredContacts, setFilteredContacts] = useState([]);
+  const [notificationMsg, setNotificationMsg] = useState(null);
+  const [notificationStatus, setNotificationStatus] = useState(null);
 
   const onChangeName = event => setNewName(event.target.value);
   const onChangeNumber = event => setNewNumber(event.target.value);
@@ -64,7 +69,16 @@ const App = () => {
 
   const deleteContact = (id, name) => {
     if (window.confirm(`Delete ${name} ?`)) {
-      contactService.remove(id).then(res => fetchData());
+      contactService
+        .remove(id)
+        .then(res => fetchData())
+        .catch(error => {
+          notification(
+            `Information of ${name} has already been removed from the server`,
+            "notification-warning"
+          );
+          fetchData();
+        });
     }
   };
 
@@ -78,19 +92,14 @@ const App = () => {
 
     const contactToUpdate = { ...doesNameAlreadyExist };
     contactToUpdate.newNumber = newNumber;
-    console.log(doesNameAlreadyExist, contactToUpdate);
 
     if (doesNameAlreadyExist !== undefined) {
-      // alert(`${newName} is already added to phonebook`);
       if (
         window.confirm(
           `${newName} is already added to the phonebook, replace the old number with a new one?`
         )
       ) {
-        contactService
-          .update(contactToUpdate)
-          .then(res => fetchData());
-          // .then(fetchData());
+        contactService.update(contactToUpdate).then(res => fetchData());
       }
     }
 
@@ -99,13 +108,23 @@ const App = () => {
         name: newName,
         number: formatPhoneNumber(newNumber)
       };
-      contactService
-        .create(contactObj)
-        .then(newPerson => setPersons(persons.concat(newPerson)));
+      contactService.create(contactObj).then(newPerson => {
+        setPersons(persons.concat(newPerson));
+        notification(`Added ${newName}`, "notification-success");
+      });
     }
 
     setNewName("");
     setNewNumber("");
+  };
+
+  const notification = (msg, status) => {
+    setNotificationMsg(msg);
+    setNotificationStatus(status);
+    setTimeout(() => {
+      setNotificationMsg(null);
+      setNotificationStatus(null);
+    }, 3000);
   };
 
   const formatPhoneNumber = phoneNumberString => {
@@ -125,6 +144,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification msg={notificationMsg} status={notificationStatus} />
       <Filter value={filterName} onChangeAction={searchContacts} />
       <h2>add a new</h2>
       <PersonForm
